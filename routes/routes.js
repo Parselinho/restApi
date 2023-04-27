@@ -3,14 +3,31 @@
 const express = require('express');
 const router = express.Router();
 const { User } = require('../models');
-const { check, validationResult } = require('express-validator');
+const { Sequelize } = require('sequelize');
+const auth = require('basic-auth');
+const bcrypt = require('bcrypt');
 
+const authenticateUser = async (req, res, next) => {
+  const credentials = auth(req);
 
-const authenticateUser = (req, res, next) => {
-  next();
+  if (credentials) {
+    const user = await User.findOne({
+      where: {
+        emailAddress: credentials.name
+      }
+    });
+
+    if (user && bcrypt.compareSync(credentials.pass, user.password)) {
+      req.currentUser = user;
+      next();
+    } else {
+      res.status(401).json({ message: 'Access Denied' });
+    }
+  } else {
+    res.status(401).json({ message: 'Authentication required' });
+  }
 };
 
-// GET /api/users route
 router.get('/api/users', authenticateUser, async (req, res) => {
   try {
     const user = await User.findOne({
@@ -26,25 +43,17 @@ router.get('/api/users', authenticateUser, async (req, res) => {
   }
 });
 
-// POST /api/users route
-router.post('/api/users', [
-  check('firstName').notEmpty().withMessage('First name is required'),
-  check('lastName').notEmpty().withMessage('Last name is required'),
-  check('emailAddress').isEmail().withMessage('Email address is not valid'),
-  check('password').notEmpty().withMessage('Password is required')
-], async (req, res) => {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
+router.post('/api/users', async (req, res) => {
   try {
     const newUser = await User.create(req.body);
     res.setHeader('Location', '/');
     res.status(201).end();
   } catch (error) {
-    res.status(500).json({ message: 'An error occurred while creating the user' });
+    if (error instanceof Sequelize.ValidationError) {
+      res.status(400).json({ errors: error.errors.map(err => err.message) });
+    } else {
+      res.status(500).json({ message: 'An error occurred while creating the user' });
+    }
   }
 });
 
