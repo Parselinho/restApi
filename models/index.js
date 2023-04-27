@@ -9,12 +9,9 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
-const User = require('./users');
-const Course = require('./courses');
+const User = require('./user');
+const Course = require('./course');
 
-// Define the association between the User and Course models
-User.hasMany(Course, { foreignKey: 'userId' });
-Course.belongsTo(User, { foreignKey: 'userId' });
 
 let sequelize;
 if (config.use_env_variable) {
