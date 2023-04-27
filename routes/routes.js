@@ -5,9 +5,8 @@ const router = express.Router();
 const { User } = require('../models');
 const { check, validationResult } = require('express-validator');
 
-// Replace this function with your authentication middleware
+
 const authenticateUser = (req, res, next) => {
-  // Add your authentication logic here, and set req.currentUser to the authenticated user
   next();
 };
 
