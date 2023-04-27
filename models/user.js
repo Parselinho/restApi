@@ -23,24 +23,44 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notEmpty: true,
+        notEmpty: {
+          msg: 'First name is required'
+        },
+        notNull: {
+          msg: 'Please provide a last name'
+        }
       },
     },
     emailAddress: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
-      validate: {
-        notEmpty: true,
-        isEmail: true,
+      unique: {
+        args: true,
+        msg: 'Email address already in use!'
       },
+      validate: {
+        notNull: {
+          msg: 'Please provide a value for "emailAddress"'
+        },
+        notEmpty: {
+          msg: 'Please provide a value for "emailAddress"'
+        },
+        isEmail: {
+          msg: 'Please provide a valid email address'
+        }
+      }
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notEmpty: true,
-      },
+        notNull: {
+          msg: 'Please provide a value for "password"'
+        },
+        notEmpty: {
+          msg: 'Please provide a value for "password"'
+        }
+      }
     },
   });
 
