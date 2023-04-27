@@ -1,7 +1,11 @@
-// models/users.js
+'use strict';
 
+// models/users.js
+const Sequelize = require('sequelize');
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('./index');
+
+
 
 const User = sequelize.define('User', {
   firstName: {
@@ -35,5 +39,9 @@ const User = sequelize.define('User', {
     },
   },
 });
+
+User.associate = models => {
+  User.hasMany(models.Course, { foreignKey: 'userId' });
+};
 
 module.exports = User;
