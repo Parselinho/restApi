@@ -44,17 +44,18 @@ router.get('/api/users', authenticateUser, async (req, res) => {
 });
 
 router.post('/api/users', async (req, res) => {
-  try {
-    const newUser = await User.create(req.body);
-    res.setHeader('Location', '/');
-    res.status(201).end();
-  } catch (error) {
-    if (error instanceof Sequelize.ValidationError) {
-      res.status(400).json({ errors: error.errors.map(err => err.message) });
-    } else {
-      res.status(500).json({ message: 'An error occurred while creating the user' });
+    try {
+      const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+      const newUser = await User.create({ ...req.body, password: hashedPassword });
+      res.setHeader('Location', '/');
+      res.status(201).end();
+    } catch (error) {
+      if (error instanceof Sequelize.ValidationError) {
+        res.status(400).json({ errors: error.errors.map(err => err.message) });
+      } else {
+        res.status(500).json({ message: 'An error occurred while creating the user' });
+      }
     }
-  }
-});
+  });
 
 module.exports = router;
