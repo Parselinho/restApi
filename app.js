@@ -16,6 +16,9 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
+
+app.use(express.json());
+
 app.use(userRoutes);
 
 // Test the database connection
